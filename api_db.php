@@ -401,22 +401,15 @@ if (isset($_GET['getGraphData']) && $auth) {
         WHERE $limit
         GROUP BY interval
         ORDER BY interval";
-    // Count permitted queries in intervals
-    $stmt = $db->prepare('SELECT (timestamp/:interval)*:interval interval, COUNT(*) FROM queries WHERE (status != 0 )'.$limit.' GROUP by interval ORDER by interval');
-    $stmt->bindValue(":from", $from, SQLITE3_INTEGER);
-    $stmt->bindValue(":until", $until, SQLITE3_INTEGER);
-    $stmt->bindValue(":interval", $interval, SQLITE3_INTEGER);
-    if(isset($client))
-        $stmt->bindValue(":client", $client, SQLITE3_TEXT);
-    if(isset($domain))
-        $stmt->bindValue(":domain", $domain, SQLITE3_TEXT);
-
-    $results = $stmt->execute();
 
     $stmt = $db->prepare($sqlcommand);
     $stmt->bindValue(':from', $from, SQLITE3_INTEGER);
     $stmt->bindValue(':until', $until, SQLITE3_INTEGER);
     $stmt->bindValue(':interval', $interval, SQLITE3_INTEGER);
+    if(isset($client))
+        $stmt->bindValue(":client", $client, SQLITE3_TEXT);
+    if(isset($domain))
+        $stmt->bindValue(":domain", $domain, SQLITE3_TEXT);
     $results = $stmt->execute();
 
     // Parse the DB result into graph data, filling in missing interval sections with zero
