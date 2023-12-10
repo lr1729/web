@@ -54,8 +54,12 @@ $(function () {
 });
 
 function updateTopClientsChart() {
-  $("#client-frequency .overlay").show();
   $.getJSON("api_db.php?topClients&from=" + from + "&until=" + until, function (data) {
+
+  var client = encodeURIComponent($("#client").val());
+  var domain = encodeURIComponent($("#domain").val());
+
+  $.getJSON("api_db.php?topClients&from=" + from + "&until=" + until + "&client=" + client + "&domain=" + domain, function(data) {
     // Clear tables before filling them with data
     $("#client-frequency td").parent().remove();
     var clienttable = $("#client-frequency").find("tbody:last");
@@ -102,8 +106,12 @@ function updateTopClientsChart() {
 }
 
 function updateTopDomainsChart() {
-  $("#domain-frequency .overlay").show();
   $.getJSON("api_db.php?topDomains&from=" + from + "&until=" + until, function (data) {
+
+  var client = encodeURIComponent($("#client").val());
+  var domain = encodeURIComponent($("#domain").val());
+
+  $.getJSON("api_db.php?topDomains&from=" + from + "&until=" + until + "&client=" + client + "&domain=" + domain, function(data) {
     // Clear tables before filling them with data
     $("#domain-frequency td").parent().remove();
     var domaintable = $("#domain-frequency").find("tbody:last");
@@ -144,7 +152,11 @@ function updateTopDomainsChart() {
 
 function updateTopAdsChart() {
   $("#ad-frequency .overlay").show();
-  $.getJSON("api_db.php?topAds&from=" + from + "&until=" + until, function (data) {
+
+  var client = encodeURIComponent($("#client").val());
+  var domain = encodeURIComponent($("#domain").val());
+
+  $.getJSON("api_db.php?topAds&from=" + from + "&until=" + until + "&client=" + client + "&domain=" + domain, function(data) {
     // Clear tables before filling them with data
     $("#ad-frequency td").parent().remove();
     var adtable = $("#ad-frequency").find("tbody:last");
