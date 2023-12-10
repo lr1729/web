@@ -146,9 +146,31 @@ if (isset($_GET['topClients']) && $auth) {
     } elseif (!isset($_GET['from']) && isset($_GET['until'])) {
         $limit = 'WHERE timestamp <= :until';
     }
+
+    if(isset($_GET["client"]) && strlen($_GET["client"]) > 0)
+    {
+        $limit .= " AND client = :client";
+        $client = urldecode($_GET["client"]);
+    }
+
+    if(isset($_GET["domain"]) && strlen($_GET["domain"]) > 0)
+    {
+        $limit .= " AND domain = :domain";
+        $domain = urldecode($_GET["domain"]);
+    }
+
     $dbquery = "SELECT CASE typeof(client) WHEN 'integer' THEN (";
     $dbquery .= " SELECT CASE TRIM(name) WHEN '' THEN c.ip ELSE c.name END name FROM client_by_id c WHERE c.id = q.client)";
     $dbquery .= ' ELSE client END client, count(client) FROM query_storage q '.$limit.' GROUP BY client ORDER BY count(client) DESC LIMIT 20';
+
+    $stmt = $db->prepare($dbquery);
+    $stmt->bindValue(":from", intval($_GET['from']), SQLITE3_INTEGER);
+    $stmt->bindValue(":until", intval($_GET['until']), SQLITE3_INTEGER);
+    if(isset($client))
+        $stmt->bindValue(":client", $client, SQLITE3_TEXT);
+    if(isset($domain))
+        $stmt->bindValue(":domain", $domain, SQLITE3_TEXT);
+    $results = $stmt->execute();
 
     $stmt = $db->prepare($dbquery);
     $stmt->bindValue(':from', intval($_GET['from']), SQLITE3_INTEGER);
@@ -184,6 +206,7 @@ if (isset($_GET['topClients']) && $auth) {
 if (isset($_GET['topDomains']) && $auth) {
     $limit = '';
 
+<<<<<<< HEAD
     if (isset($_GET['from'], $_GET['until'])) {
         $limit = ' AND timestamp >= :from AND timestamp <= :until';
     } elseif (isset($_GET['from']) && !isset($_GET['until'])) {
@@ -195,6 +218,35 @@ if (isset($_GET['topDomains']) && $auth) {
     $stmt = $db->prepare('SELECT domain,count(domain) FROM queries WHERE status IN (2,3,12,13,14,17)'.$limit.' GROUP by domain order by count(domain) desc limit 20');
     $stmt->bindValue(':from', intval($_GET['from']), SQLITE3_INTEGER);
     $stmt->bindValue(':until', intval($_GET['until']), SQLITE3_INTEGER);
+    $results = $stmt->execute();
+
+    if (isset($_GET['from'], $_GET['until'])) {
+        $limit = ' AND timestamp >= :from AND timestamp <= :until';
+    } elseif (isset($_GET['from']) && !isset($_GET['until'])) {
+        $limit = ' AND timestamp >= :from';
+    } elseif (!isset($_GET['from']) && isset($_GET['until'])) {
+        $limit = ' AND timestamp <= :until';
+    }
+
+    if(isset($_GET["client"]) && strlen($_GET["client"]) > 0)
+    {
+        $limit .= " AND client = :client";
+        $client = urldecode($_GET["client"]);
+    }
+
+    if(isset($_GET["domain"]) && strlen($_GET["domain"]) > 0)
+    {
+        $limit .= " AND domain = :domain";
+        $domain = urldecode($_GET["domain"]);
+    }
+
+    $stmt = $db->prepare('SELECT domain,count(domain) FROM queries WHERE status IN (2,3,12,13,14,17)'.$limit.' GROUP by domain order by count(domain) desc limit 20');
+    $stmt->bindValue(":from", intval($_GET['from']), SQLITE3_INTEGER);
+    $stmt->bindValue(":until", intval($_GET['until']), SQLITE3_INTEGER);
+    if(isset($client))
+        $stmt->bindValue(":client", $client, SQLITE3_TEXT);
+    if(isset($domain))
+        $stmt->bindValue(":domain", $domain, SQLITE3_TEXT);
     $results = $stmt->execute();
 
     $domains = array();
@@ -233,9 +285,26 @@ if (isset($_GET['topAds']) && $auth) {
     } elseif (!isset($_GET['from']) && isset($_GET['until'])) {
         $limit = ' AND timestamp <= :until';
     }
-    $stmt = $db->prepare('SELECT domain,count(domain) FROM queries WHERE status IN (1,4,5,6,7,8,9,10,11)'.$limit.' GROUP by domain order by count(domain) desc limit 10');
-    $stmt->bindValue(':from', intval($_GET['from']), SQLITE3_INTEGER);
-    $stmt->bindValue(':until', intval($_GET['until']), SQLITE3_INTEGER);
+
+    if(isset($_GET["client"]) && strlen($_GET["client"]) > 0)
+    {
+        $limit .= " AND client = :client";
+        $client = urldecode($_GET["client"]);
+    }
+
+    if(isset($_GET["domain"]) && strlen($_GET["domain"]) > 0)
+    {
+        $limit .= " AND domain = :domain";
+        $domain = urldecode($_GET["domain"]);
+    }
+
+    $stmt = $db->prepare('SELECT domain,count(domain) FROM queries WHERE (STATUS == 1 OR STATUS == 4)'.$limit.' GROUP by domain order by count(domain) desc limit 10');
+    $stmt->bindValue(":from", intval($_GET['from']), SQLITE3_INTEGER);
+    $stmt->bindValue(":until", intval($_GET['until']), SQLITE3_INTEGER);
+    if(isset($client))
+        $stmt->bindValue(":client", $client, SQLITE3_TEXT);
+    if(isset($domain))
+        $stmt->bindValue(":domain", $domain, SQLITE3_TEXT);
     $results = $stmt->execute();
 
     $addomains = array();
@@ -302,7 +371,19 @@ if (isset($_GET['getGraphData']) && $auth) {
         $limit = 'timestamp <= :until';
     }
 
-    $interval = 600;
+	if(isset($_GET["client"]) && strlen($_GET["client"]) > 0)
+	{
+		$limit .= " AND client = :client";
+		$client = urldecode($_GET["client"]);
+	}
+
+	if(isset($_GET["domain"]) && strlen($_GET["domain"]) > 0)
+	{
+		$limit .= " AND domain = :domain";
+		$domain = urldecode($_GET["domain"]);
+	}
+
+	$interval = 600;
 
     if (isset($_GET['interval'])) {
         $q = intval($_GET['interval']);
@@ -315,6 +396,7 @@ if (isset($_GET['getGraphData']) && $auth) {
     $from = intval((intval($_GET['from']) / $interval) * $interval);
     $until = intval((intval($_GET['until']) / $interval) * $interval);
 
+<<<<<<< HEAD
     // Count domains and blocked queries using the same intervals
     $sqlcommand = "
         SELECT
@@ -331,6 +413,17 @@ if (isset($_GET['getGraphData']) && $auth) {
         WHERE $limit
         GROUP BY interval
         ORDER BY interval";
+    // Count permitted queries in intervals
+    $stmt = $db->prepare('SELECT (timestamp/:interval)*:interval interval, COUNT(*) FROM queries WHERE (status != 0 )'.$limit.' GROUP by interval ORDER by interval');
+    $stmt->bindValue(":from", $from, SQLITE3_INTEGER);
+    $stmt->bindValue(":until", $until, SQLITE3_INTEGER);
+    $stmt->bindValue(":interval", $interval, SQLITE3_INTEGER);
+    if(isset($client))
+        $stmt->bindValue(":client", $client, SQLITE3_TEXT);
+    if(isset($domain))
+        $stmt->bindValue(":domain", $domain, SQLITE3_TEXT);
+
+    $results = $stmt->execute();
 
     $stmt = $db->prepare($sqlcommand);
     $stmt->bindValue(':from', $from, SQLITE3_INTEGER);

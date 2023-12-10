@@ -257,11 +257,11 @@ $(function () {
             this.style.color = "";
           })
         );
-        $("td:eq(4)", row).off(); // Release any possible previous onClick event handlers
-        $("td:eq(4)", row).on("click", function () {
-          var newTab = window.open("groups-domains.php?domainid=" + data[9], "_blank");
-          if (newTab) {
-            newTab.focus();
+        $("td:eq(4)", row).click(function() {
+          console.log("Adding");
+          var new_tab = window.open("groups-domains.php?domainid=" + data[9], "_blank");
+          if (new_tab) {
+            new_tab.focus();
           }
         });
         $("td:eq(4)", row).addClass("text-underline pointer");
