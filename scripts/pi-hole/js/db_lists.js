@@ -54,7 +54,7 @@ $(function () {
 });
 
 function updateTopClientsChart() {
-  $.getJSON("api_db.php?topClients&from=" + from + "&until=" + until, function (data) {
+  $("#client-frequency .overlay").show();
 
   var client = encodeURIComponent($("#client").val());
   var domain = encodeURIComponent($("#domain").val());
@@ -106,7 +106,7 @@ function updateTopClientsChart() {
 }
 
 function updateTopDomainsChart() {
-  $.getJSON("api_db.php?topDomains&from=" + from + "&until=" + until, function (data) {
+  $("#domain-frequency .overlay").show();
 
   var client = encodeURIComponent($("#client").val());
   var domain = encodeURIComponent($("#domain").val());

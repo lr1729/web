@@ -172,11 +172,6 @@ if (isset($_GET['topClients']) && $auth) {
         $stmt->bindValue(":domain", $domain, SQLITE3_TEXT);
     $results = $stmt->execute();
 
-    $stmt = $db->prepare($dbquery);
-    $stmt->bindValue(':from', intval($_GET['from']), SQLITE3_INTEGER);
-    $stmt->bindValue(':until', intval($_GET['until']), SQLITE3_INTEGER);
-    $results = $stmt->execute();
-
     $clientnums = array();
 
     if (!is_bool($results)) {
@@ -204,9 +199,8 @@ if (isset($_GET['topClients']) && $auth) {
 }
 
 if (isset($_GET['topDomains']) && $auth) {
+    // Select top permitted domains only
     $limit = '';
-
-<<<<<<< HEAD
     if (isset($_GET['from'], $_GET['until'])) {
         $limit = ' AND timestamp >= :from AND timestamp <= :until';
     } elseif (isset($_GET['from']) && !isset($_GET['until'])) {
@@ -214,11 +208,6 @@ if (isset($_GET['topDomains']) && $auth) {
     } elseif (!isset($_GET['from']) && isset($_GET['until'])) {
         $limit = ' AND timestamp <= :until';
     }
-    // Select top permitted domains only
-    $stmt = $db->prepare('SELECT domain,count(domain) FROM queries WHERE status IN (2,3,12,13,14,17)'.$limit.' GROUP by domain order by count(domain) desc limit 20');
-    $stmt->bindValue(':from', intval($_GET['from']), SQLITE3_INTEGER);
-    $stmt->bindValue(':until', intval($_GET['until']), SQLITE3_INTEGER);
-    $results = $stmt->execute();
 
     if (isset($_GET['from'], $_GET['until'])) {
         $limit = ' AND timestamp >= :from AND timestamp <= :until';
@@ -371,19 +360,19 @@ if (isset($_GET['getGraphData']) && $auth) {
         $limit = 'timestamp <= :until';
     }
 
-	if(isset($_GET["client"]) && strlen($_GET["client"]) > 0)
-	{
-		$limit .= " AND client = :client";
-		$client = urldecode($_GET["client"]);
-	}
+    if(isset($_GET["client"]) && strlen($_GET["client"]) > 0)
+    {
+        $limit .= " AND client = :client";
+        $client = urldecode($_GET["client"]);
+    }
 
-	if(isset($_GET["domain"]) && strlen($_GET["domain"]) > 0)
-	{
-		$limit .= " AND domain = :domain";
-		$domain = urldecode($_GET["domain"]);
-	}
+    if(isset($_GET["domain"]) && strlen($_GET["domain"]) > 0)
+    {
+        $limit .= " AND domain = :domain";
+        $domain = urldecode($_GET["domain"]);
+    }
 
-	$interval = 600;
+    $interval = 600;
 
     if (isset($_GET['interval'])) {
         $q = intval($_GET['interval']);
@@ -396,7 +385,6 @@ if (isset($_GET['getGraphData']) && $auth) {
     $from = intval((intval($_GET['from']) / $interval) * $interval);
     $until = intval((intval($_GET['until']) / $interval) * $interval);
 
-<<<<<<< HEAD
     // Count domains and blocked queries using the same intervals
     $sqlcommand = "
         SELECT
